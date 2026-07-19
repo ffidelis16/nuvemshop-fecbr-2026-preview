@@ -72,54 +72,6 @@ if ("IntersectionObserver" in window) {
   revealItems.forEach((item) => item.classList.add("is-visible"));
 }
 
-const arena = document.querySelector("[data-arena]");
-const arenaOrder = ["content", "diagnostic", "experience", "happy"];
-let activeArenaIndex = 0;
-
-const setArenaPanel = (targetName, moveFocus = false) => {
-  const targetIndex = arenaOrder.indexOf(targetName);
-  if (!arena || targetIndex < 0) return;
-
-  activeArenaIndex = targetIndex;
-  const triggers = arena.querySelectorAll("[data-arena-trigger]");
-  const panels = arena.querySelectorAll("[data-arena-panel]");
-
-  triggers.forEach((trigger) => {
-    const isActive = trigger.dataset.arenaTrigger === targetName;
-    trigger.classList.toggle("is-active", isActive);
-    trigger.setAttribute("aria-pressed", String(isActive));
-    if (isActive && moveFocus) trigger.focus({ preventScroll: true });
-  });
-
-  panels.forEach((panel) => {
-    const isActive = panel.dataset.arenaPanel === targetName;
-    panel.hidden = !isActive;
-    panel.classList.toggle("is-active", isActive);
-  });
-};
-
-arena?.querySelectorAll("[data-arena-trigger]").forEach((trigger) => {
-  trigger.addEventListener("click", () => setArenaPanel(trigger.dataset.arenaTrigger));
-});
-
-arena?.querySelector("[data-arena-prev]")?.addEventListener("click", () => {
-  const nextIndex = (activeArenaIndex - 1 + arenaOrder.length) % arenaOrder.length;
-  setArenaPanel(arenaOrder[nextIndex], true);
-});
-
-arena?.querySelector("[data-arena-next]")?.addEventListener("click", () => {
-  const nextIndex = (activeArenaIndex + 1) % arenaOrder.length;
-  setArenaPanel(arenaOrder[nextIndex], true);
-});
-
-arena?.addEventListener("keydown", (event) => {
-  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-  event.preventDefault();
-  const direction = event.key === "ArrowRight" ? 1 : -1;
-  const nextIndex = (activeArenaIndex + direction + arenaOrder.length) % arenaOrder.length;
-  setArenaPanel(arenaOrder[nextIndex], true);
-});
-
 document.querySelectorAll(".faq-list details").forEach((detail) => {
   detail.addEventListener("toggle", () => {
     if (!detail.open) return;
@@ -128,6 +80,58 @@ document.querySelectorAll(".faq-list details").forEach((detail) => {
     });
   });
 });
+
+const expertCarousel = document.querySelector("[data-expert-carousel]");
+const expertCards = expertCarousel ? [...expertCarousel.children] : [];
+const expertPrev = document.querySelector("[data-expert-prev]");
+const expertNext = document.querySelector("[data-expert-next]");
+const expertStatus = document.querySelector("[data-expert-status]");
+let expertScrollFrame = 0;
+
+const getActiveExpertIndex = () => {
+  if (!expertCarousel || !expertCards.length) return 0;
+  const carouselCenter = expertCarousel.scrollLeft + expertCarousel.clientWidth / 2;
+
+  return expertCards.reduce((closestIndex, card, index) => {
+    const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+    const closestCard = expertCards[closestIndex];
+    const closestCenter = closestCard.offsetLeft + closestCard.offsetWidth / 2;
+    return Math.abs(cardCenter - carouselCenter) < Math.abs(closestCenter - carouselCenter)
+      ? index
+      : closestIndex;
+  }, 0);
+};
+
+const updateExpertControls = () => {
+  const activeIndex = getActiveExpertIndex();
+  if (expertStatus) expertStatus.textContent = `${activeIndex + 1} / ${expertCards.length}`;
+  if (expertPrev) expertPrev.disabled = activeIndex === 0;
+  if (expertNext) expertNext.disabled = activeIndex === expertCards.length - 1;
+};
+
+const scrollToExpert = (index) => {
+  if (!expertCarousel || !expertCards[index]) return;
+  const card = expertCards[index];
+  const left = card.offsetLeft - (expertCarousel.clientWidth - card.offsetWidth) / 2;
+  expertCarousel.scrollTo({ left, behavior: "smooth" });
+};
+
+expertPrev?.addEventListener("click", () => scrollToExpert(Math.max(0, getActiveExpertIndex() - 1)));
+expertNext?.addEventListener("click", () =>
+  scrollToExpert(Math.min(expertCards.length - 1, getActiveExpertIndex() + 1)),
+);
+
+expertCarousel?.addEventListener(
+  "scroll",
+  () => {
+    window.cancelAnimationFrame(expertScrollFrame);
+    expertScrollFrame = window.requestAnimationFrame(updateExpertControls);
+  },
+  { passive: true },
+);
+
+window.addEventListener("resize", updateExpertControls);
+updateExpertControls();
 
 const dialog = document.querySelector("[data-dialog]");
 const form = document.querySelector("[data-prototype-form]");
