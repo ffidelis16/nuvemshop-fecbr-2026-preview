@@ -9,11 +9,12 @@ Preview público sanitizado da landing page institucional para a ação fechada 
 - Formulário demonstrativo aberto em modal; nenhum dado é enviado.
 - Assets visuais usados exclusivamente para avaliação desta proposta.
 
-Versão atual: V4.7.1, revisada a partir do conteúdo final do evento e do retorno da cliente em 19/07/2026. A V4.4 enviada para a primeira revisão está preservada na tag `v4.4-client-review`.
+Versão atual: V4.7.2, revisada a partir do conteúdo final do evento e das confirmações recebidas até 20/07/2026. A V4.4 enviada para a primeira revisão está preservada na tag `v4.4-client-review`.
 
-### Atualização V4.7.1
+### Atualização V4.7.2
 
 - agenda final com Guilherme Pedroso, Thiago Araújo e Lucas Renault;
+- identificação de Guilherme como presidente da Nuvemshop e de Lucas Renault como o Rei do Tráfego;
 - faixa institucional somente com as marcas Nuvemshop, UpNext e Agência Rei;
 - H1 desktop reduzido e hero refinado;
 - seção de especialistas com fotos e carrossel nativo no mobile;
